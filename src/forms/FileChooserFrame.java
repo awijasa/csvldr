@@ -312,7 +312,7 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
                     int choice = JOptionPane.showConfirmDialog( null, "Do you want to include column titles?", "Column Titles", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
 
                     if( task == SAVE_CSV )
-                        main.setTitle( "CSV Loader 2.1 - Loading..." );
+                        main.setTitle( "CSV Loader 2.2 - Loading..." );
                     else
                         main.planFrame.setTitle( "Plan - Loading..." );
 
@@ -349,7 +349,7 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
                     }
 
                     if( task == SAVE_CSV )
-                        main.setTitle( "CSV Loader 2.1" );
+                        main.setTitle( "CSV Loader 2.2" );
                     else
                         main.planFrame.setTitle( "Plan" );
 
@@ -358,7 +358,7 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
                 else if( task == SAVE_SQL_INSERT ) {
                     setVisible( false );
 
-                    main.setTitle( "CSV Loader 2.1 - Loading..." );
+                    main.setTitle( "CSV Loader 2.2 - Loading..." );
 
                     try {
                         new SQLWriter( main, SQLWriter.INSERT );
@@ -379,14 +379,14 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
                         JOptionPane.showMessageDialog( null, te.getMessage(), "Table Not Found", JOptionPane.ERROR_MESSAGE );
                     }
 
-                    main.setTitle( "CSV Loader 2.1" );
+                    main.setTitle( "CSV Loader 2.2" );
 
                     disposeFileChooser();
                 }
                 else if( task == SAVE_SQL_MERGE ) {
                     setVisible( false );
 
-                    main.setTitle( "CSV Loader 2.1 - Loading..." );
+                    main.setTitle( "CSV Loader 2.2 - Loading..." );
 
                     try {
                         new SQLWriter( main, SQLWriter.MERGE );
@@ -407,7 +407,7 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
                         JOptionPane.showMessageDialog( null, te.getMessage(), "Table Not Found", JOptionPane.ERROR_MESSAGE );
                     }
 
-                    main.setTitle( "CSV Loader 2.1" );
+                    main.setTitle( "CSV Loader 2.2" );
 
                     disposeFileChooser();
                 }
@@ -449,7 +449,7 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
                 else if( task == SAVE_PLAN ) {
                     setVisible( false );
 
-                    main.setTitle( "CSV Loader 2.1 - Loading..." );
+                    main.setTitle( "CSV Loader 2.2 - Loading..." );
 
                     try {
                         new PlanWriter( main );
@@ -461,13 +461,13 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
                         JOptionPane.showMessageDialog( null, se.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE );
                     }
 
-                    main.setTitle( "CSV Loader 2.1" );
+                    main.setTitle( "CSV Loader 2.2" );
 
                     disposeFileChooser();
                 }
                 else {
                     setVisible( false );
-                    main.setTitle( "CSV Loader 2.1 - Loading..." );
+                    main.setTitle( "CSV Loader 2.2 - Loading..." );
 
                     try {
                         new CSVMetaDataWriter( main );
@@ -476,7 +476,7 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
                         JOptionPane.showMessageDialog( null, ie.getMessage(), "I/O Error", JOptionPane.ERROR_MESSAGE );
                     }
 
-                    main.setTitle( "CSV Loader 2.1" );
+                    main.setTitle( "CSV Loader 2.2" );
 
                     disposeFileChooser();
                 }

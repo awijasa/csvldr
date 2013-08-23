@@ -154,7 +154,7 @@ public class Main extends javax.swing.JFrame {
         aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("CSV Loader 2.1");
+        setTitle("CSV Loader 2.2");
 
         mainMenu.setText("Main Menu");
 
@@ -327,7 +327,7 @@ public class Main extends javax.swing.JFrame {
 
     /* Add a column to the CSV Data Snapshot, containing the PIDMs derived from other information */
     public void addExistingPIDMCol( int sourceColIndex, int sourceType ) {
-        setTitle( "CSV Loader 2.1 - Loading..." );
+        setTitle( "CSV Loader 2.2 - Loading..." );
 
         try {
             ExistingPIDMQuery pidmQuery = new ExistingPIDMQuery( this, sourceColIndex, sourceType );
@@ -341,7 +341,7 @@ public class Main extends javax.swing.JFrame {
             JOptionPane.showMessageDialog( null, se.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE );
         }
 
-        setTitle( "CSV Loader 2.1" );
+        setTitle( "CSV Loader 2.2" );
         setEnabled( true );
         requestFocus();
     }
@@ -350,7 +350,7 @@ public class Main extends javax.swing.JFrame {
     public void addNewCSBIDCol() {
         setEnabled( false );
 
-        setTitle( "CSV Loader 2.1 - Loading..." );
+        setTitle( "CSV Loader 2.2 - Loading..." );
 
         try {
             CSBIDGen idGen = new CSBIDGen( this );
@@ -361,7 +361,7 @@ public class Main extends javax.swing.JFrame {
             JOptionPane.showMessageDialog( null, e.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE );
         }
 
-        setTitle( "CSV Loader 2.1" );
+        setTitle( "CSV Loader 2.2" );
         setEnabled( true );
         requestFocus();
     }
@@ -370,7 +370,7 @@ public class Main extends javax.swing.JFrame {
     public void addNewPIDMCol() {
         setEnabled( false );
 
-        setTitle( "CSV Loader 2.1 - Loading..." );
+        setTitle( "CSV Loader 2.2 - Loading..." );
 
         try {
             PIDMGen pidmGen = new PIDMGen( this );
@@ -381,7 +381,7 @@ public class Main extends javax.swing.JFrame {
             JOptionPane.showMessageDialog( null, e.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE );
         }
 
-        setTitle( "CSV Loader 2.1" );
+        setTitle( "CSV Loader 2.2" );
         setEnabled( true );
         requestFocus();
     }
@@ -390,7 +390,7 @@ public class Main extends javax.swing.JFrame {
     public void addNewSJUIDCol() {
         setEnabled( false );
         
-        setTitle( "CSV Loader 2.1 - Loading..." );
+        setTitle( "CSV Loader 2.2 - Loading..." );
 
         try {
             SJUIDGen idGen = new SJUIDGen( this );
@@ -401,7 +401,7 @@ public class Main extends javax.swing.JFrame {
             JOptionPane.showMessageDialog( null, e.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE );
         }
 
-        setTitle( "CSV Loader 2.1" );
+        setTitle( "CSV Loader 2.2" );
         setEnabled( true );
         requestFocus();
     }
