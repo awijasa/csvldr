@@ -1,7 +1,10 @@
 /*
  * Main.java
  *
- * --- Last Update: 8/9/2010 7:05 PM ---
+ * --- Last Update: 8/7/2013 ---
+ *
+ * Update Notes 8/7/2013 by Bryan Pauquette:
+ * Changed tns references to database references
  *
  * Update Notes 8/9/2010 7:05 PM by Adrian Wijasa:
  * Now force the user to login when Main Menu > Import a CSV File into Database is clicked.
@@ -91,7 +94,7 @@ package forms;
 
 import csv.ColumnNotConfiguredException;
 import panels.CSVPanel;
-import panels.TNSPanel;
+import panels.DatabasePanel;
 import panels.WelcomePanel;
 import java.awt.Color;
 import java.sql.SQLException;
@@ -171,7 +174,7 @@ public class Main extends javax.swing.JFrame {
         });
         mainMenu.add(connMenuItem);
 
-        tnsMenuItem.setText("Maintain TNS Names");
+        tnsMenuItem.setText("Maintain Database Names");
         tnsMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tnsMenuItemActionPerformed(evt);
@@ -190,10 +193,10 @@ public class Main extends javax.swing.JFrame {
 
         menuBar.add(mainMenu);
 
-        tnsMenu.setText("TNS Maintenance");
+        tnsMenu.setText("Database Maintenance");
         tnsMenu.setEnabled(false);
 
-        uploadMenuItem.setText("Upload tnsnames.ora");
+        uploadMenuItem.setText("Upload Databases.xml");
         uploadMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 uploadMenuItemActionPerformed(evt);
@@ -201,7 +204,7 @@ public class Main extends javax.swing.JFrame {
         });
         tnsMenu.add(uploadMenuItem);
 
-        appendMenuItem.setText("Append tnsnames.ora");
+        appendMenuItem.setText("Append Databases.xml");
         appendMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 appendMenuItemActionPerformed(evt);
@@ -277,7 +280,7 @@ public class Main extends javax.swing.JFrame {
 }//GEN-LAST:event_connMenuItemActionPerformed
 
     private void tnsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tnsMenuItemActionPerformed
-        addTNSTab();
+        addDatabaseTab();
 }//GEN-LAST:event_tnsMenuItemActionPerformed
 
     private void quitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitMenuItemActionPerformed
@@ -285,11 +288,11 @@ public class Main extends javax.swing.JFrame {
 }//GEN-LAST:event_quitMenuItemActionPerformed
 
     private void uploadMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uploadMenuItemActionPerformed
-        popUpFileChooser( FileChooserFrame.UPLOAD_TNS );
+        popUpFileChooser( FileChooserFrame.UPLOAD_DATABASE_CONFIGURATION );
 }//GEN-LAST:event_uploadMenuItemActionPerformed
 
     private void appendMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_appendMenuItemActionPerformed
-        popUpFileChooser( FileChooserFrame.APPEND_TNS );
+        popUpFileChooser( FileChooserFrame.APPEND_DATABASE_CONFIGURATION );
 }//GEN-LAST:event_appendMenuItemActionPerformed
 
     private void csvUploadMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_csvUploadMenuItemActionPerformed
@@ -404,10 +407,10 @@ public class Main extends javax.swing.JFrame {
     }
 
     /* Add a tab that is used to maintain the TNS configurations */
-    public void addTNSTab() {
-        tnsPanel = new TNSPanel( this );
-        tabbedPane.addTab( "TNS Maintenance", tnsPanel );
-        tabbedPane.setSelectedComponent( tnsPanel );
+    public void addDatabaseTab() {
+        databasePanel = new DatabasePanel( this );
+        tabbedPane.addTab( "Database Maintenance", databasePanel );
+        tabbedPane.setSelectedComponent( databasePanel );
         tnsMenu.setEnabled( true ); // Enable the menu related to TNS Names Maintenance
 
         /*
@@ -415,7 +418,7 @@ public class Main extends javax.swing.JFrame {
             closing the possibility of opening more than one TNS Tabs
          */
         tnsMenuItem.setEnabled( false );
-        welcomePanel.tnsLabel.setEnabled( false );
+        welcomePanel.databaseLabel.setEnabled( false );
     }
 
     /* Add a Welcome Tab */
@@ -622,6 +625,6 @@ public class Main extends javax.swing.JFrame {
     public String password;
     public String sid;
     public String user;
-    public TNSPanel tnsPanel;
+    public DatabasePanel databasePanel;
     public WelcomePanel welcomePanel;
 }

@@ -29,8 +29,12 @@
 
 package forms;
 
+import config.ConfigException;
+
+import javax.swing.*;
+
 /**
- * Error Message Window to be shown when a TNSException is caught
+ * Error Message Window to be shown when a ConfigException is caught
  *
  * --- Last Update: 7/17/2009 2:28 PM ---
  *
@@ -51,8 +55,10 @@ package forms;
 public class TNSExceptionFrame extends javax.swing.JFrame {
 
     /** Creates new form TNSExceptionFrame */
-    public TNSExceptionFrame( Main main ) {
+    public TNSExceptionFrame( Main main , ConfigException ex) {
         this.main = main;
+        this.ex = ex;
+
         initComponents();
         setLocation( main.getX() + 77, main.getY() + 141 );
     }
@@ -71,6 +77,7 @@ public class TNSExceptionFrame extends javax.swing.JFrame {
         okButton = new javax.swing.JButton();
         rightScrollPane = new javax.swing.JScrollPane();
         rightTextPane = new javax.swing.JTextPane();
+        exceptionMessage = new javax.swing.JLabel(ex.getMessage());
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("TNS Upload Error");
@@ -95,6 +102,7 @@ public class TNSExceptionFrame extends javax.swing.JFrame {
         rightTextPane.setBackground(new java.awt.Color(236, 233, 216));
         rightTextPane.setBorder(null);
         rightTextPane.setEditable(false);
+        rightTextPane.add(exceptionMessage);
         rightTextPane.setText("The following TNSNAMES.ORA syntaxes are not supported:\n- DESCRIPTION_LIST\n- ADDRESS_LIST\n- FAILOVER\n- LOAD_BALANCE\n- RECV_BUF_SIZE\n- SDU\n- SEND_BUF_SIZE\n- SOURCE_ROUTE\n- TYPE_OF_SERVICE\n- FAILOVER_MODE\n- GLOBAL_NAME\n- HS\n- INSTANCE_NAME\n- RDB_DATABASE\n- SERVER\n- SERVICE_NAME\n\nOnly TCP Protocol is supported.");
         rightScrollPane.setViewportView(rightTextPane);
 
@@ -149,7 +157,9 @@ public class TNSExceptionFrame extends javax.swing.JFrame {
     private javax.swing.JButton okButton;
     private javax.swing.JScrollPane rightScrollPane;
     private javax.swing.JTextPane rightTextPane;
+    private JLabel exceptionMessage;
     // End of variables declaration//GEN-END:variables
 
     private Main main;
+    private ConfigException ex;
 }

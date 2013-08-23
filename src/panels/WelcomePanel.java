@@ -1,7 +1,10 @@
 /*
  * WelcomePanel.java
  *
- * --- Last Update 6/19/2010 9:13 PM ---
+ * --- Last Update 8/7/2013 ---
+ *
+ * Update Notes 8/7/2013 by Bryan Pauquette:
+ * Changed tns references to database references
  *
  * Update Notes 6/19/2010 9:13 PM by Adrian Wijasa:
  * When "Import a CSV File into Database" is clicked, request a DB Connection credentials and a CSV File to
@@ -63,7 +66,7 @@ public class WelcomePanel extends javax.swing.JPanel {
 
         csvLabel = new javax.swing.JLabel();
         connLabel = new javax.swing.JLabel();
-        tnsLabel = new javax.swing.JLabel();
+        databaseLabel = new javax.swing.JLabel();
         connPanel = new javax.swing.JPanel();
         userLabel = new javax.swing.JLabel();
         hostLabel = new javax.swing.JLabel();
@@ -81,7 +84,7 @@ public class WelcomePanel extends javax.swing.JPanel {
         dbLabel = new javax.swing.JLabel();
         dbValueLabel = new javax.swing.JLabel();
 
-        csvLabel.setFont(new java.awt.Font("Dialog", 1, 11));
+        csvLabel.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
         csvLabel.setForeground(new java.awt.Color(0, 102, 255));
         csvLabel.setText("Import a CSV File into Database");
         csvLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -96,7 +99,7 @@ public class WelcomePanel extends javax.swing.JPanel {
             }
         });
 
-        connLabel.setFont(new java.awt.Font("Dialog", 1, 11));
+        connLabel.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
         connLabel.setForeground(new java.awt.Color(0, 102, 255));
         connLabel.setText("Set the Database Connection Parameters");
         connLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -111,18 +114,18 @@ public class WelcomePanel extends javax.swing.JPanel {
             }
         });
 
-        tnsLabel.setFont(new java.awt.Font("Dialog", 1, 11));
-        tnsLabel.setForeground(new java.awt.Color(0, 102, 255));
-        tnsLabel.setText("Maintain the TNS Names");
-        tnsLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        databaseLabel.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
+        databaseLabel.setForeground(new java.awt.Color(0, 102, 255));
+        databaseLabel.setText("Maintain the Database Names");
+        databaseLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tnsLabelMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                tnsLabelMouseEntered(evt);
+                databaseLabelMouseClicked(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                tnsLabelMouseExited(evt);
+                databaseLabelMouseExited(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                databaseLabelMouseEntered(evt);
             }
         });
 
@@ -235,20 +238,22 @@ public class WelcomePanel extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(csvLabel)
-                .addContainerGap(627, Short.MAX_VALUE))
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(connLabel)
-                .addContainerGap(566, Short.MAX_VALUE))
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(tnsLabel)
-                .addContainerGap(674, Short.MAX_VALUE))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(517, Short.MAX_VALUE)
-                .add(connPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap(517, Short.MAX_VALUE)
+                        .add(connPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(csvLabel)
+                                .add(0, 670, Short.MAX_VALUE))
+                            .add(layout.createSequentialGroup()
+                                .add(connLabel)
+                                .add(0, 624, Short.MAX_VALUE))
+                            .add(layout.createSequentialGroup()
+                                .add(databaseLabel)
+                                .add(0, 684, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -259,7 +264,7 @@ public class WelcomePanel extends javax.swing.JPanel {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(connLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(tnsLabel)
+                .add(databaseLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 324, Short.MAX_VALUE)
                 .add(connPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -297,20 +302,20 @@ public class WelcomePanel extends javax.swing.JPanel {
         connLabel.setForeground( main.black );
 }//GEN-LAST:event_connLabelMouseEntered
 
-    private void tnsLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tnsLabelMouseClicked
-        tnsLabel.setForeground( main.red );
+    private void databaseLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tnsLabelMouseClicked
+        databaseLabel.setForeground(main.red);
 
-        if( tnsLabel.isEnabled() )
-            main.addTNSTab();
+        if( databaseLabel.isEnabled() )
+            main.addDatabaseTab();
 }//GEN-LAST:event_tnsLabelMouseClicked
 
-    private void tnsLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tnsLabelMouseExited
-        tnsLabel.setForeground( main.blue );
-}//GEN-LAST:event_tnsLabelMouseExited
+    private void databaseLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_databaseLabelMouseExited
+        databaseLabel.setForeground(main.blue);
+}//GEN-LAST:event_databaseLabelMouseExited
 
-    private void tnsLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tnsLabelMouseEntered
-        tnsLabel.setForeground( main.black );
-}//GEN-LAST:event_tnsLabelMouseEntered
+    private void databaseLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_databaseLabelMouseEntered
+        databaseLabel.setForeground(main.black);
+}//GEN-LAST:event_databaseLabelMouseEntered
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel colonLabel1;
@@ -321,6 +326,7 @@ public class WelcomePanel extends javax.swing.JPanel {
     public javax.swing.JLabel connLabel;
     private javax.swing.JPanel connPanel;
     public javax.swing.JLabel csvLabel;
+    public javax.swing.JLabel databaseLabel;
     private javax.swing.JLabel dbLabel;
     public javax.swing.JLabel dbValueLabel;
     private javax.swing.JLabel hostLabel;
@@ -329,7 +335,6 @@ public class WelcomePanel extends javax.swing.JPanel {
     public javax.swing.JLabel portValueLabel;
     private javax.swing.JLabel sidLabel;
     public javax.swing.JLabel sidValueLabel;
-    public javax.swing.JLabel tnsLabel;
     private javax.swing.JLabel userLabel;
     public javax.swing.JLabel userValueLabel;
     // End of variables declaration//GEN-END:variables

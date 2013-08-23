@@ -1,7 +1,10 @@
 /*
  * FileChooserFrame.java
  *
- * --- Last Update: 6/19/2010 6:30 PM ---
+ * --- Last Update: 8/7/2013 ---
+ *
+ * Update Notes 8/7/2013 by Bryan Pauquette:
+ * Changed tns references to database references
  *
  * Update Notes 6/19/2010 6:30 PM by Adrian Wijasa:
  * Changed the access config of SAVE_SQL_INSERT and SAVE_SQL_MERGE static values from default to public,
@@ -59,6 +62,8 @@
 
 package forms;
 
+import config.ConfigException;
+import config.DatabaseConfiguration;
 import csv.ColumnNotConfiguredException;
 import csv.CSVMetaDataWriter;
 import csv.CSVPanelImageReader;
@@ -80,20 +85,18 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import sql.TableNotFoundException;
-import tns.TNSNamesReader;
-import tns.TNSException;
 
 /**
  * File Chooser Window.  Allows user to choose a file or name a save file, and then invoke a function
  *
- * @author matianyuan
+ * @author awijasa
  */
 public class FileChooserFrame extends javax.swing.JFrame implements ActionListener {
 
     /** Creates new form FileChooserFrame */
     public FileChooserFrame(
         Main main
-        , int task // Possible inputs: APPEND_TNS, UPLOAD_CSV, SAVE_CSV, SAVE_DATA_COMPARISON, SAVE_SQL_INSERT, SAVE_SQL_MERGE, SAVE_IMAGE, UPLOAD_IMAGE, SAVE_PLAN, SAVE_METADATA
+        , int task // Possible inputs: UPLOAD_DATABASE_CONFIGURATION, APPEND_DATABASE_CONFIGURATION, UPLOAD_CSV, SAVE_CSV, SAVE_DATA_COMPARISON, SAVE_SQL_INSERT, SAVE_SQL_MERGE, SAVE_IMAGE, UPLOAD_IMAGE, SAVE_PLAN, SAVE_METADATA
     ) {
         this.main = main;
         this.task = task;
@@ -202,9 +205,9 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
 
     /* Initialize Approve Button text based on the task value */
     private void initApproveButtonText() {
-        if( task == APPEND_TNS )
+        if( task == APPEND_DATABASE_CONFIGURATION )
             fileChooser.setApproveButtonText( "Append" );
-        else if( task == UPLOAD_TNS || task == UPLOAD_CSV || task == UPLOAD_IMAGE )
+        else if( task == UPLOAD_DATABASE_CONFIGURATION || task == UPLOAD_CSV || task == UPLOAD_IMAGE )
             fileChooser.setApproveButtonText( "Upload" );
         else
             fileChooser.setApproveButtonText( "Save" );
@@ -227,8 +230,8 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
     private void initFilter() {
         FileNameExtensionFilter filter;
 
-        if( task == UPLOAD_TNS || task == APPEND_TNS )
-            filter = new FileNameExtensionFilter( "ORA Files", "ora" );
+        if( task == UPLOAD_DATABASE_CONFIGURATION || task == APPEND_DATABASE_CONFIGURATION )
+            filter = new FileNameExtensionFilter( "XML Files", "xml" );
         else if( task == UPLOAD_CSV || task == SAVE_CSV || task == SAVE_DATA_COMPARISON ||
             task == SAVE_METADATA )
             filter = new FileNameExtensionFilter( "CSV Files", "csv" );
@@ -244,10 +247,10 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
 
     /* Initialize Form Title based on the task value */
     private void initFormTitle() {
-        if( task == UPLOAD_TNS )
-            setTitle( "Select the TNSNAMES.ORA to be Uploaded" );
-        else if( task == APPEND_TNS )
-            setTitle( "Select the TNSNAMES.ORA to be Appended" );
+        if( task == UPLOAD_DATABASE_CONFIGURATION )
+            setTitle( "Select the DATABASES.XML to be Uploaded" );
+        else if( task == APPEND_DATABASE_CONFIGURATION )
+            setTitle( "Select the DATABASES.XML to be Appended" );
         else if( task == UPLOAD_CSV )
             setTitle( "Select the CSV File to be Converted to a SQL Insert Script" );
         else if( task == SAVE_CSV )
@@ -271,41 +274,32 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
     public void actionPerformed( ActionEvent e ) {
         if( e.getSource() == approveButton ) {
             if( !approveButton.getText().equals( "Open" ) ) {
-                if( task == UPLOAD_TNS ) {
+                if( task == UPLOAD_DATABASE_CONFIGURATION ) {
                     try {
-                        tnsNamesReader = new TNSNamesReader( main, fileChooser.getSelectedFile() ); // Digest selected ORA file
-                        main.tnsPanel.setTNSTableContent( tnsNamesReader.getTNSVector() );          // Displays the TNS Configurations obtained from the ORA file
-
+                        databaseConfigurationReader = new DatabaseConfiguration();
+                        databaseConfigurationReader.setConfigurationFile(fileChooser.getSelectedFile());
+                        databaseConfigurationReader.read();
+                        main.databasePanel.setDatabaseTableContent( databaseConfigurationReader.getDatabaseVector() );
+                        
                         disposeFileChooser();
                     }
-                    catch( FileNotFoundException fe ) {
-                        JOptionPane.showMessageDialog( null, fe.getMessage(), "File Not Found", JOptionPane.ERROR_MESSAGE );
-                    }
-                    catch( IOException ie ) {
-                        JOptionPane.showMessageDialog( null, ie.getMessage(), "I/O Error", JOptionPane.ERROR_MESSAGE );
-                    }
-                    catch( TNSException te ) {
+                    catch( ConfigException ce ) {
                         main.fileChooser.setEnabled( false );
-                        new TNSExceptionFrame( main ).setVisible( true );
+                        new TNSExceptionFrame( main, ce ).setVisible( true );
                     }
                     catch( NullPointerException ne ) {} // Prevents Error Message when Approve Button is clicked without any file being selected
                 }
-                else if( task == APPEND_TNS ) {
+                else if( task == APPEND_DATABASE_CONFIGURATION ) {
                     try {
-                        tnsNamesReader = new TNSNamesReader( main, fileChooser.getSelectedFile() ); // Digest selected ORA file
-                        main.tnsPanel.appendTNSTableContent( tnsNamesReader.getTNSVector() );       // Displays the TNS Configurations obtained from the ORA file
-
+                        databaseConfigurationReader = new DatabaseConfiguration(); // Digest selected XML file
+                        databaseConfigurationReader.setConfigurationFile(fileChooser.getSelectedFile());
+                        main.databasePanel.appendTNSTableContent(databaseConfigurationReader.getDatabaseVector());       // Displays the Database Configurations obtained from the XML file
+                        
                         disposeFileChooser();
                     }
-                    catch( FileNotFoundException fe ) {
-                        JOptionPane.showMessageDialog( null, fe.getMessage(), "File Not Found", JOptionPane.ERROR_MESSAGE );
-                    }
-                    catch( IOException ie ) {
-                        JOptionPane.showMessageDialog( null, ie.getMessage(), "I/O Error", JOptionPane.ERROR_MESSAGE );
-                    }
-                    catch( TNSException te ) {
+                    catch( ConfigException ce ) {
                         main.fileChooser.setEnabled( false );
-                        new TNSExceptionFrame( main ).setVisible( true );
+                        new TNSExceptionFrame( main, ce ).setVisible( true );
                     }
                     catch( NullPointerException ne ) {} // Prevents Error Message when Approve Button is clicked without any file being selected
                 }
@@ -502,9 +496,9 @@ public class FileChooserFrame extends javax.swing.JFrame implements ActionListen
     private JButton cancelButton;
     private JTextField fileTextField;
     private Main main;
-    public TNSNamesReader tnsNamesReader;
-    static final int UPLOAD_TNS = 0;
-    static final int APPEND_TNS = 1;
+    public DatabaseConfiguration databaseConfigurationReader;
+    static final int UPLOAD_DATABASE_CONFIGURATION = 0;
+    static final int APPEND_DATABASE_CONFIGURATION = 1;
     static final int UPLOAD_CSV = 2;
     public static final int SAVE_CSV = 3;
     public static final int SAVE_DATA_COMPARISON = 4;

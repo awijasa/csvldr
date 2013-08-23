@@ -1,7 +1,13 @@
 /*
  * DBLoginFrame.java
  *
- * --- Last Update: 8/10/2010 3:37 PM ---
+ * --- Last Update: 8/22/2013 11:52 PM ---
+ *
+ * Update Notes 8/22/2013 11:52 PM by Adrian Wijasa:
+ * If Databases.xml exists and tnsnames.ora exists, change it to tnsnames.old and save its entries into Databases.xml
+ *
+ * Update Notes 8/7/2013 by Bryan Pauquette:
+ * Extract database names from Databases.xml instead of tnsnames.ora
  *
  * Update Notes 8/10/2010 3:37 PM by Adrian Wijasa:
  * Displays an Installation Error if the installation steps in http://csvloader.sourceforge.net haven't been performed.
@@ -63,6 +69,8 @@
 
 package forms;
 
+import config.ConfigException;
+import config.DatabaseConfiguration;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -96,6 +104,11 @@ public class DBLoginFrame extends javax.swing.JFrame {
             setLocation( main.getX() + 291, main.getY() + 233 );
             setVisible( true );
         }
+        catch( ConfigException ce ) {
+            main.setEnabled( false );
+            new TNSExceptionFrame( main, ce ).setVisible( true );
+            dispose();
+        }
         catch( FileNotFoundException fe ) {
             JOptionPane.showMessageDialog( null, fe.getMessage(), "File Not Found", JOptionPane.ERROR_MESSAGE );
             dispose();
@@ -105,8 +118,7 @@ public class DBLoginFrame extends javax.swing.JFrame {
             dispose();
         }
         catch( TNSException te ) {
-            main.setEnabled( false );
-            new TNSExceptionFrame( main ).setVisible( true );
+            JOptionPane.showMessageDialog( null, te.getMessage(), "TNS Error", JOptionPane.ERROR_MESSAGE );
             dispose();
         }
     }
@@ -126,6 +138,11 @@ public class DBLoginFrame extends javax.swing.JFrame {
             setLocation( main.getX() + 291, main.getY() + 233 );
             setVisible( true );
         }
+        catch( ConfigException ce ) {
+            main.setEnabled( false );
+            new TNSExceptionFrame( main, ce ).setVisible( true );
+            dispose();
+        }
         catch( FileNotFoundException fe ) {
             JOptionPane.showMessageDialog( null, fe.getMessage(), "File Not Found", JOptionPane.ERROR_MESSAGE );
             dispose();
@@ -135,8 +152,7 @@ public class DBLoginFrame extends javax.swing.JFrame {
             dispose();
         }
         catch( TNSException te ) {
-            main.setEnabled( false );
-            new TNSExceptionFrame( main ).setVisible( true );
+            JOptionPane.showMessageDialog( null, te.getMessage(), "TNS Error", JOptionPane.ERROR_MESSAGE );
             dispose();
         }
     }
@@ -269,13 +285,13 @@ public class DBLoginFrame extends javax.swing.JFrame {
         /* Login using the selected TNS and other inputted parameters */
         loginLabel.setForeground( main.red );
 
-        colVector = (Vector)rowVector.get( dbComboBox.getSelectedIndex() );
+        databaseEntry = (Vector)databaseEntries.get( dbComboBox.getSelectedIndex() );
 
         String user = userTextField.getText();
         String password = new String( pwdPasswordField.getPassword() );
-        String host = (String)colVector.get( 1 );
-        int port = (Integer)colVector.get( 2 );
-        String sid = (String)colVector.get( 3 );
+        String host = (String)databaseEntry.get( 1 );
+        int port = (Integer)databaseEntry.get( 2 );
+        String sid = (String)databaseEntry.get( 3 );
         String dbType = "";
 
         try {
@@ -367,12 +383,34 @@ public class DBLoginFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosed
 
     /* Initialize TNS Combo Box */
-    private void initComboBox() throws FileNotFoundException, IOException, TNSException {
-        rowVector = new TNSNamesReader( main, new File( "tnsnames.ora" ) ).getTNSVector();
+    private void initComboBox() throws ConfigException, FileNotFoundException, IOException, TNSException {
+        File databasesFile = new File( DatabaseConfiguration.CONFIGNAME );
+        File tnsnamesFile = new File( "tnsnames.ora" );
+        
+        if( !databasesFile.exists() ) {
+            try {
+                rowVector = new TNSNamesReader( main, tnsnamesFile ).getTNSVector();
+            }
+            catch( FileNotFoundException e ) {}
+        }
 
-        for( int i = 0; i < rowVector.size(); i++ ) {
-            colVector = (Vector)rowVector.get( i );
-            dbComboBox.addItem( colVector.get( 0 ) );
+        if( rowVector == null ) {
+            DatabaseConfiguration databaseConfiguration = new DatabaseConfiguration();
+            databaseConfiguration.read();
+            databaseEntries = databaseConfiguration.getDatabaseVector();
+        }
+        else if( rowVector.size() > 0 ) {
+            DatabaseConfiguration databaseConfiguration = new DatabaseConfiguration();
+            databaseConfiguration.setDatabaseVector( rowVector );
+            databaseConfiguration.write();
+            databaseEntries = rowVector;
+            
+            tnsnamesFile.renameTo( new File( "tnsnames.old" ) );
+        }
+        
+        for( int i = 0; i < databaseEntries.size(); i++ ) {
+            databaseEntry = (Vector)databaseEntries.get( i );
+            dbComboBox.addItem( databaseEntry.get( 0 ) );
         }
     }
 
@@ -397,6 +435,8 @@ public class DBLoginFrame extends javax.swing.JFrame {
     private Main main;
     private MetaDataQuery metaDataQuery;
     private Vector colVector;
+    private Vector databaseEntries;
+    private Vector databaseEntry;
     private Vector rowVector;
     public static final int DO_NOTHING = 0;
     public static final int UPLOAD_CSV_DATA_SNAPSHOT = 1;

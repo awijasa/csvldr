@@ -1,7 +1,14 @@
 /*
- * TNSPanel.java
+ * DatabasePanel.java
  *
- * --- Last Update: 4/18/2010 6:55 PM ---
+ * --- Last Update: 8/22/2013 11:48 PM ---
+ *
+ * Update Notes 8/22/2013 11:48 PM by Adrian Wijasa:
+ * If Databases.xml exists and tnsnames.ora exists, change it to tnsnames.old and save its entries into Databases.xml
+ *
+ * Update Notes 8/7/2013 by Bryan Pauquette:
+ * Changed TNS references to Database references
+ * Present an error message when a new Database entry is incomplete
  *
  * Update Notes 4/18/2010 6:55 PM by Adrian Wijasa:
  * This class can now work with Java 5.
@@ -32,6 +39,8 @@
 
 package panels;
 
+import config.ConfigException;
+import config.DatabaseConfiguration;
 import forms.Main;
 import forms.TNSExceptionFrame;
 import java.io.File;
@@ -43,6 +52,7 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import tns.TNSException;
 import tns.TNSNamesReader;
 import tns.TNSNamesWriter;
@@ -50,16 +60,17 @@ import tns.TNSNamesWriter;
 /**
  * TNS Maintenance Panel
  * 
- * @author matianyuan
+ * @author awijasa
  */
-public class TNSPanel extends javax.swing.JPanel {
+public class DatabasePanel extends javax.swing.JPanel {
 
-    /** Creates new form TNSPanel */
-    public TNSPanel( Main main ) {
+    /** Creates new form DatabasePanel */
+    public DatabasePanel( Main main ) {
         this.main = main;
+        databaseConfigReader = new DatabaseConfiguration();
         initComponents();
         initColumnNames();
-        initTNSTable();
+        initDatabaseTable();
     }
 
     /** This method is called from within the constructor to
@@ -71,20 +82,20 @@ public class TNSPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        tnsScrollPane = new javax.swing.JScrollPane();
-        tnsTable = new javax.swing.JTable();
+        databaseScrollPane = new javax.swing.JScrollPane();
+        databaseTable = new javax.swing.JTable();
         closeLabel = new javax.swing.JLabel();
         saveLabel = new javax.swing.JLabel();
         resetLabel = new javax.swing.JLabel();
         addLabel = new javax.swing.JLabel();
         removeLabel = new javax.swing.JLabel();
 
-        tnsTable.setModel(new javax.swing.table.DefaultTableModel(
+        databaseTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "TNS Name", "Host", "Port", "SID"
+                "Name", "Host", "Port", "SID"
             }
         ) {
             Class[] types = new Class [] {
@@ -95,7 +106,7 @@ public class TNSPanel extends javax.swing.JPanel {
                 return types [columnIndex];
             }
         });
-        tnsScrollPane.setViewportView(tnsTable);
+        databaseScrollPane.setViewportView(databaseTable);
 
         closeLabel.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
         closeLabel.setForeground(new java.awt.Color(0, 102, 255));
@@ -184,17 +195,17 @@ public class TNSPanel extends javax.swing.JPanel {
                         .add(154, 154, 154)
                         .add(resetLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(269, 269, 269))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap(733, Short.MAX_VALUE)
-                        .add(closeLabel))
                     .add(layout.createSequentialGroup()
                         .addContainerGap()
-                        .add(tnsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 753, Short.MAX_VALUE))
+                        .add(databaseScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 753, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap(662, Short.MAX_VALUE)
-                        .add(addLabel)
-                        .add(36, 36, 36)
-                        .add(removeLabel)))
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, closeLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(addLabel)
+                                .add(36, 36, 36)
+                                .add(removeLabel)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -203,7 +214,7 @@ public class TNSPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .add(closeLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(tnsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
+                .add(databaseScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(addLabel)
@@ -221,7 +232,7 @@ public class TNSPanel extends javax.swing.JPanel {
 
         main.tnsMenu.setEnabled( false );
         main.tnsMenuItem.setEnabled( true );
-        main.welcomePanel.tnsLabel.setEnabled( true );
+        main.welcomePanel.databaseLabel.setEnabled( true );
         main.tabbedPane.remove( this );
 }//GEN-LAST:event_closeLabelMouseClicked
 
@@ -237,10 +248,11 @@ public class TNSPanel extends javax.swing.JPanel {
         saveLabel.setForeground( main.red );
 
         try {
-            new TNSNamesWriter( ( (DefaultTableModel)tnsTable.getModel() ).getDataVector() );
-            JOptionPane.showMessageDialog( null, "Successfully saved the TNS Configuration in CSV Loader's TNSNAMES.ORA", "Save Result", JOptionPane.INFORMATION_MESSAGE );
-        } catch( Exception e ) {
-            JOptionPane.showMessageDialog( null, e.getMessage(), "Input/Output Error", JOptionPane.ERROR_MESSAGE );
+            databaseConfigReader.setDatabaseVector(getVector(databaseTable.getModel()));
+            databaseConfigReader.write();
+            JOptionPane.showMessageDialog( null, "Successfully saved the Configuration", "Save Result", JOptionPane.INFORMATION_MESSAGE );
+        } catch(ConfigException ex) {
+            JOptionPane.showMessageDialog( null, ex.getMessage(), "Error saving configuration", JOptionPane.ERROR_MESSAGE );
         }
 }//GEN-LAST:event_saveLabelMouseClicked
 
@@ -254,7 +266,7 @@ public class TNSPanel extends javax.swing.JPanel {
 
     private void resetLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resetLabelMouseClicked
         resetLabel.setForeground( main.red );
-        initTNSTable();
+        initDatabaseTable();
 }//GEN-LAST:event_resetLabelMouseClicked
 
     private void resetLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resetLabelMouseExited
@@ -268,7 +280,7 @@ public class TNSPanel extends javax.swing.JPanel {
     private void addLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addLabelMouseClicked
         addLabel.setForeground( main.red );
 
-        ( (DefaultTableModel)tnsTable.getModel() ).addRow( new Object[] { null, null, null, null } );
+        ( (DefaultTableModel)databaseTable.getModel() ).addRow( new Object[] { null, null, null, null } );
 }//GEN-LAST:event_addLabelMouseClicked
 
     private void addLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addLabelMouseExited
@@ -282,8 +294,8 @@ public class TNSPanel extends javax.swing.JPanel {
     private void removeLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_removeLabelMouseClicked
         removeLabel.setForeground( main.red );
 
-        selectedRows = tnsTable.getSelectedRows();
-        tableModel = (DefaultTableModel)tnsTable.getModel();
+        selectedRows = databaseTable.getSelectedRows();
+        tableModel = (DefaultTableModel)databaseTable.getModel();
 
         for( int i = selectedRows.length - 1; i > -1; i-- )
             tableModel.removeRow( selectedRows[i] );
@@ -298,7 +310,7 @@ public class TNSPanel extends javax.swing.JPanel {
 }//GEN-LAST:event_removeLabelMouseEntered
 
     public void appendTNSTableContent( Vector<Vector> tnsVector ) {
-        Vector<Vector> initialVector = ( (DefaultTableModel)tnsTable.getModel() ).getDataVector();
+        Vector<Vector> initialVector = ( (DefaultTableModel)databaseTable.getModel() ).getDataVector();
         initialVector.addAll( tnsVector );
         tableModel = new DefaultTableModel( initialVector, new Vector( colNameVector ) ) {
             Class[] types = new Class [] {
@@ -309,36 +321,67 @@ public class TNSPanel extends javax.swing.JPanel {
             }
         };
         
-        remodelTNSTable();
+        remodelDatabaseTable();
+    }
+    
+    private Vector getVector(TableModel model) {
+        Vector databases=new Vector();
+       for (int r=0;r<model.getRowCount();r++) {
+             Vector databaseEntry = new Vector();
+             for (int c=0;c<model.getColumnCount();c++) {
+                 Object o = model.getValueAt(r,c);
+                 if (o!=null) {
+                    databaseEntry.add(model.getValueAt(r,c));
+                 }
+             }
+           databases.add(databaseEntry);
+       }
+       return databases;
     }
     
     private void initColumnNames() {
         colNameVector = new Vector<String>( 4 );
-        colNameVector.add( "TNS Name" );
+        colNameVector.add( "Name" );
         colNameVector.add( "Host" );
         colNameVector.add( "Port" );
         colNameVector.add( "SID" );
     }
     
-    public void initTNSTable() {
+    public void initDatabaseTable() {
+        File databasesFile = new File( DatabaseConfiguration.CONFIGNAME );
+        Vector databaseVector = null;
+        File tnsnamesFile = new File( "tnsnames.ora" );
+        
+        if( !databasesFile.exists() ) {
+            try {
+                databaseVector = new TNSNamesReader( main, tnsnamesFile ).getTNSVector();
+            }
+            catch( Exception e ) {}
+        }
+
         try {
-            tnsNamesReader = new TNSNamesReader( main, new File( "tnsnames.ora" ) ); // Digest selected ORA file
-            setTNSTableContent( tnsNamesReader.getTNSVector() );
+            if( databaseVector == null ) {
+                databaseConfigReader.read();
+                setDatabaseTableContent( databaseConfigReader.getDatabaseVector() );
+            }
+            else if( databaseVector.size() > 0 ) {
+                databaseConfigReader.setDatabaseVector( databaseVector );
+                databaseConfigReader.write();
+                setDatabaseTableContent( databaseVector );
+
+                tnsnamesFile.renameTo( new File( "tnsnames.old" ) );
+            }
         }
-        catch( FileNotFoundException fe ) {}
-        catch( IOException ie ) {
-            JOptionPane.showMessageDialog( null, ie.getMessage(), "Input/Output Error", JOptionPane.ERROR_MESSAGE );
-        }
-        catch( TNSException te ) {
+        catch( ConfigException ce ) {
             main.setEnabled( false );
-            new TNSExceptionFrame( main ).setVisible( true );
+            new TNSExceptionFrame( main, ce ).setVisible( true );
         }
     }
     
-    private void remodelTNSTable() {
-        tnsTable.setModel( tableModel );
+    private void remodelDatabaseTable() {
+        databaseTable.setModel( tableModel );
         
-        tnsTableHeader = tnsTable.getTableHeader();
+        tnsTableHeader = databaseTable.getTableHeader();
         tnsTableHeader.setReorderingAllowed( false );
         columnModel = (DefaultTableColumnModel)tnsTableHeader.getColumnModel();
         tnsNameCol = columnModel.getColumn( 0 );
@@ -351,7 +394,7 @@ public class TNSPanel extends javax.swing.JPanel {
         sidCol.setPreferredWidth( 25 );
     }
     
-    public void setTNSTableContent( Vector tnsVector ) {
+    public void setDatabaseTableContent( Vector tnsVector ) {
         tableModel = new DefaultTableModel( new Vector( tnsVector ), new Vector( colNameVector ) ) {
             Class[] types = new Class [] {
                 java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class
@@ -361,19 +404,20 @@ public class TNSPanel extends javax.swing.JPanel {
             }
         };
         
-        remodelTNSTable();
+        remodelDatabaseTable();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel addLabel;
     private javax.swing.JLabel closeLabel;
+    public javax.swing.JScrollPane databaseScrollPane;
+    public javax.swing.JTable databaseTable;
     private javax.swing.JLabel removeLabel;
     private javax.swing.JLabel resetLabel;
     private javax.swing.JLabel saveLabel;
-    public javax.swing.JScrollPane tnsScrollPane;
-    public javax.swing.JTable tnsTable;
     // End of variables declaration//GEN-END:variables
 
+    private DatabaseConfiguration databaseConfigReader;
     private DefaultTableColumnModel columnModel;
     private DefaultTableModel tableModel;
     private int[] selectedRows;
